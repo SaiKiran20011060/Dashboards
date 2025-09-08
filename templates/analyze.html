@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Structure Analyzer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .upload-area { border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 8px; margin: 20px 0; }
+        .upload-area:hover { border-color: #007bff; background-color: #f8f9fa; }
+        .btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn:hover { background-color: #0056b3; }
+        .alert { padding: 15px; margin: 20px 0; border-radius: 4px; white-space: pre-line; }
+        .alert-info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .alert-error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; color: #007bff; text-decoration: none; }
+        .nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/">← Back to Dashboard</a>
+            <a href="/upload">Upload File</a>
+        </div>
+        
+        <h1>📊 File Structure Analyzer</h1>
+        <p>Analyze your Excel/CSV files to check compatibility with the dashboard before uploading.</p>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="post" enctype="multipart/form-data">
+            <div class="upload-area">
+                <h3>📁 Select File to Analyze</h3>
+                <input type="file" name="file" accept=".xlsx,.xls,.csv" required>
+                <p>Supported formats: Excel (.xlsx, .xls), CSV (.csv)</p>
+            </div>
+            
+            <button type="submit" class="btn">🔍 Analyze Structure</button>
+        </form>
+        
+        <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+            <h3>📋 Required Columns</h3>
+            <ul>
+                <li>Project Name</li>
+                <li>Task Name</li>
+                <li>Assigned to</li>
+                <li>Start Date</li>
+                <li>Days Required</li>
+                <li>End Date</li>
+                <li>Progress</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

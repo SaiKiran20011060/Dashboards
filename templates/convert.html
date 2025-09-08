@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV to XLSX Converter</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .upload-box { border: 2px dashed #ccc; padding: 40px; text-align: center; margin: 20px 0; }
+        .btn { background: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        .btn:hover { background: #0056b3; }
+        .alert { padding: 15px; margin: 20px 0; border-radius: 4px; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/">Dashboard</a>
+            <a href="/upload">Upload File</a>
+            <a href="/convert">Convert CSV</a>
+        </div>
+        
+        <h2>CSV to XLSX Converter</h2>
+        <p>Convert your CSV file to XLSX format for upload</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="post" enctype="multipart/form-data">
+            <div class="upload-box">
+                <input type="file" name="file" accept=".csv" required>
+                <p>Select a CSV file to convert to XLSX</p>
+            </div>
+            <button type="submit" class="btn">Convert & Download</button>
+        </form>
+        
+        <p><strong>Instructions:</strong></p>
+        <ol>
+            <li>Select your CSV file above</li>
+            <li>Click "Convert & Download" to get the XLSX file</li>
+            <li>Use the downloaded XLSX file in the <a href="/upload">Upload</a> section</li>
+        </ol>
+    </div>
+</body>
+</html>
