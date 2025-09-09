@@ -176,14 +176,14 @@
 <body>
     <div class="header">
         <div>
-            <h1>📊 Task Dashboard</h1>
+            <h1>Task Dashboard</h1>
             <div class="file-info">
-                📁 Current File: <strong>{{ current_file }}</strong>
+                Current File: <strong>{{ current_file }}</strong>
             </div>
         </div>
         <div>
-            <a href="{{ url_for('upload_file') }}" class="btn btn-warning">📤 Upload Excel</a>
-            <a href="{{ url_for('reset_to_default') }}" class="btn btn-info">🔄 Reset to Default</a>
+            <a href="{{ url_for('upload_file') }}" class="btn btn-warning">Upload Excel</a>
+            <a href="{{ url_for('reset_to_default') }}" class="btn btn-info">Reset to Default</a>
         </div>
     </div>
 
@@ -222,10 +222,10 @@
 
     <!-- Controls -->
     <div class="controls">
-        <h3>🎛️ Controls</h3>
+        <h3>Controls</h3>
         
         <!-- Add New Task -->
-        <button onclick="openModal('addTaskModal')" class="btn btn-success">➕ Add New Task</button>
+        <button onclick="openModal('addTaskModal')" class="btn btn-success">Add New Task</button>
         
         <!-- Dynamic Filter Form -->
         {% if available_columns %}
@@ -245,8 +245,8 @@
             {% endfor %}
             <div class="form-group">
                 <label>&nbsp;</label>
-                <button type="submit" class="btn btn-primary">🔍 Filter</button>
-                <a href="{{ url_for('dashboard') }}" class="btn" style="background-color: #6c757d; color: white; margin-left: 10px;">🔄 Reset</a>
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ url_for('dashboard') }}" class="btn" style="background-color: #6c757d; color: white; margin-left: 10px;">Reset</a>
             </div>
         </form>
         {% endif %}
@@ -256,8 +256,8 @@
     <div class="task-container">
         <p style="margin-bottom: 10px; color: #666; font-style: italic;">Double-click any cell to edit its value. Changes are saved automatically.</p>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h2>📋 Data Table ({{ tasks|length }} rows, {{ available_columns|length if available_columns else 0 }} columns)</h2>
-            <a href="{{ url_for('download_file') }}" class="btn btn-success">💾 Download Excel</a>
+            <h2>Data Table ({{ tasks|length }} rows, {{ available_columns|length if available_columns else 0 }} columns)</h2>
+            <a href="{{ url_for('download_file') }}" class="btn btn-success">Download Excel</a>
         </div>
         
         {% if tasks and available_columns %}
@@ -301,7 +301,7 @@
     <div id="addTaskModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('addTaskModal')">&times;</span>
-            <h2>➕ Add New Entry</h2>
+            <h2>Add New Entry</h2>
             <form method="POST" action="{{ url_for('add_task') }}">
                 {% if available_columns %}
                     {% for column in available_columns %}
@@ -328,7 +328,7 @@
                         <input type="text" name="Value">
                     </div>
                 {% endif %}
-                <button type="submit" class="btn btn-success">➕ Add Entry</button>
+                <button type="submit" class="btn btn-success">Add Entry</button>
                 <button type="button" onclick="closeModal('addTaskModal')" class="btn" style="background-color: #6c757d; color: white;">Cancel</button>
             </form>
         </div>

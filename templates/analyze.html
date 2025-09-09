@@ -24,7 +24,7 @@
             <a href="/upload">Upload File</a>
         </div>
         
-        <h1>📊 File Structure Analyzer</h1>
+        <h1>File Structure Analyzer</h1>
         <p>Analyze your Excel/CSV files to check compatibility with the dashboard before uploading.</p>
         
         {% with messages = get_flashed_messages() %}
@@ -37,16 +37,16 @@
         
         <form method="post" enctype="multipart/form-data">
             <div class="upload-area">
-                <h3>📁 Select File to Analyze</h3>
+                <h3>Select File to Analyze</h3>
                 <input type="file" name="file" accept=".xlsx,.xls,.csv" required>
                 <p>Supported formats: Excel (.xlsx, .xls), CSV (.csv)</p>
             </div>
             
-            <button type="submit" class="btn">🔍 Analyze Structure</button>
+            <button type="submit" class="btn">Analyze Structure</button>
         </form>
         
         <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
-            <h3>📋 Required Columns</h3>
+            <h3>Required Columns</h3>
             <ul>
                 <li>Project Name</li>
                 <li>Task Name</li>

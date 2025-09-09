@@ -113,7 +113,7 @@
     <div class="container">
         <a href="{{ url_for('dashboard') }}" class="back-btn">← Back to Dashboard</a>
         
-        <h1>📁 Upload Excel File</h1>
+        <h1>Upload Excel File</h1>
         
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -127,7 +127,7 @@
         {% endwith %}
         
         <div class="requirements">
-            <h3>📋 File Information:</h3>
+            <h3>File Information:</h3>
             <ul>
                 <li><strong>Supported Formats:</strong> .xlsx, .xls, .csv, .json</li>
                 <li><strong>Maximum Size:</strong> 16MB</li>
@@ -139,7 +139,7 @@
         <form method="POST" enctype="multipart/form-data" id="uploadForm">
             <div class="upload-area" onclick="document.getElementById('file-input').click()">
                 <div id="upload-text">
-                    <h3>📤 Click to Select Excel File</h3>
+                    <h3>Click to Select Excel File</h3>
                     <p>or drag and drop your file here</p>
                     <button type="button" class="upload-btn">Choose File</button>
                 </div>
@@ -152,12 +152,12 @@
             <input type="file" id="file-input" name="file" class="file-input" accept=".xlsx,.xls,.csv,.json" required>
             
             <button type="submit" class="submit-btn" id="submit-btn" disabled>
-                📊 Upload and Process File
+                Upload and Process File
             </button>
         </form>
         
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
-            <h3>💡 Tips:</h3>
+            <h3>Tips:</h3>
             <ul>
                 <li>Upload any Excel file - the dashboard will automatically detect your columns</li>
                 <li>The interface will adapt to show your data structure</li>

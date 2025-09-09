@@ -18,7 +18,7 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
 # Create upload directory if it doesn't exist
 if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 EXCEL_FILE1 = 'None.xlsx'      # Default Excel file path
 CURRENT_FILE = EXCEL_FILE1       # Track current active file
