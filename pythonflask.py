@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 import pandas as pd
 from datetime import datetime, timedelta
 import os
 from werkzeug.utils import secure_filename
+import uuid
+import tempfile
 
 
 app = Flask(__name__)
@@ -21,16 +23,25 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 EXCEL_FILE1 = 'None.xlsx'      # Default Excel file path
-CURRENT_FILE = EXCEL_FILE1       # Track current active file
+USER_FILES = {}  # Track files per session
 
 def allowed_file(filename):
     """Check if file has allowed extension"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def init_excel():       # Initialize Excel file with sample data if it doesn't exist
-    try:
-        pd.read_excel(EXCEL_FILE1)
-    except FileNotFoundError:
+def get_user_file():
+    """Get or create a unique file for the current session"""
+    if 'user_id' not in session:
+        session['user_id'] = str(uuid.uuid4())
+    
+    user_id = session['user_id']
+    
+    if user_id not in USER_FILES:
+        # Create a temporary file for this session
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx', dir=UPLOAD_FOLDER)
+        temp_file.close()
+        
+        # Initialize with empty data
         data = {
             'Project Name': [],
             'Task Name': [],
@@ -41,14 +52,15 @@ def init_excel():       # Initialize Excel file with sample data if it doesn't e
             'Progress': []  
         }
         df = pd.DataFrame(data)
-        df.to_excel(EXCEL_FILE1, index=False)
-
-init_excel()
+        df.to_excel(temp_file.name, index=False)
+        USER_FILES[user_id] = temp_file.name
+    
+    return USER_FILES[user_id]
 
 @app.route('/')         #displaying the dashboard
 def dashboard():
-    global CURRENT_FILE
-    df = pd.read_excel(CURRENT_FILE)
+    current_file = get_user_file()
+    df = pd.read_excel(current_file)
     
     # Discover available columns
     available_columns = list(df.columns)
@@ -67,7 +79,7 @@ def dashboard():
         task['width'] = progress
         
     # Get current filename for display
-    current_filename = os.path.basename(CURRENT_FILE)
+    current_filename = f"Session_{session.get('user_id', 'unknown')[:8]}.xlsx"
     return render_template('dashboard.html', tasks=tasks, current_file=current_filename, available_columns=available_columns)
 
 @app.route('/convert', methods=['GET', 'POST'])
@@ -108,7 +120,7 @@ def convert_csv():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
-    global CURRENT_FILE
+    current_file = get_user_file()
     
     if request.method == 'POST':
         # Check if file was uploaded
@@ -173,8 +185,7 @@ def upload_file():
                     except:
                         pass  # Skip if conversion fails
                 
-                df.to_excel(filepath, index=False, engine='openpyxl')
-                CURRENT_FILE = filepath
+                df.to_excel(current_file, index=False, engine='openpyxl')
                 
                 flash(f'File "{file.filename}" uploaded successfully!', 'success')
                 return redirect(url_for('dashboard'))
@@ -192,8 +203,8 @@ def upload_file():
 
 @app.route('/filter', methods=['POST'])
 def filter_tasks():
-    global CURRENT_FILE
-    df = pd.read_excel(CURRENT_FILE)
+    current_file = get_user_file()
+    df = pd.read_excel(current_file)
     
     # Discover available columns
     available_columns = list(df.columns)
@@ -216,12 +227,12 @@ def filter_tasks():
         task['color'] = 'red' if progress == 0 else 'lightgreen'
         task['width'] = progress * 100 if progress <= 1 else progress
     
-    current_filename = os.path.basename(CURRENT_FILE)
+    current_filename = f"Session_{session.get('user_id', 'unknown')[:8]}.xlsx"
     return render_template('dashboard.html', tasks=tasks, current_file=current_filename, available_columns=available_columns)
 
 @app.route('/update', methods=['POST'])         # Route to update task progress
 def update_progress():
-    global CURRENT_FILE
+    current_file = get_user_file()
     task_name = request.form.get('task_name')
     progress = request.form.get('progress')
 
@@ -232,7 +243,7 @@ def update_progress():
 
     progress = max(0, min(100, progress))
 
-    df = pd.read_excel(CURRENT_FILE)
+    df = pd.read_excel(current_file)
 
     # Find the first column that could be used as task identifier
     task_column = None
@@ -250,7 +261,7 @@ def update_progress():
     
     if task_column and progress_column:
         df.loc[df[task_column] == task_name, progress_column] = progress / 100
-        df.to_excel(CURRENT_FILE, index=False)
+        df.to_excel(current_file, index=False)
         flash(f'Progress updated for task: {task_name}', 'success')
     else:
         flash('Cannot update progress: no suitable columns found', 'error')
@@ -259,22 +270,22 @@ def update_progress():
 
 @app.route('/edit', methods=['POST'])
 def edit_field():
-    global CURRENT_FILE
+    current_file = get_user_file()
     row_index = int(request.form.get('row_index'))
     column = request.form.get('column')
     new_value = request.form.get('new_value')
     
-    df = pd.read_excel(CURRENT_FILE)
+    df = pd.read_excel(current_file)
     df.iloc[row_index, df.columns.get_loc(column)] = new_value
-    df.to_excel(CURRENT_FILE, index=False)
+    df.to_excel(current_file, index=False)
     
     flash(f'Updated {column} successfully!', 'success')
     return redirect(url_for('dashboard'))
 
 @app.route('/add', methods=['POST'])        # Route to add a new task
 def add_task():
-    global CURRENT_FILE
-    df = pd.read_excel(CURRENT_FILE)
+    current_file = get_user_file()
+    df = pd.read_excel(current_file)
     
     # Get all form data
     form_data = request.form.to_dict()
@@ -293,7 +304,7 @@ def add_task():
         new_task = form_data
     
     df = pd.concat([df, pd.DataFrame([new_task])], ignore_index=True)
-    df.to_excel(CURRENT_FILE, index=False)
+    df.to_excel(current_file, index=False)
     
     flash(f'New entry added successfully!', 'success')
     return redirect(url_for('dashboard'))
@@ -301,29 +312,35 @@ def add_task():
 @app.route('/download')
 def download_file():
     """Download current data as Excel file"""
-    global CURRENT_FILE
     from flask import send_file
-    import tempfile
+    current_file = get_user_file()
     
     # Check if file exists
-    if not os.path.exists(CURRENT_FILE):
+    if not os.path.exists(current_file):
         flash('No file to download', 'error')
         return redirect(url_for('dashboard'))
     
-    # Create a temporary copy for download
-    df = pd.read_excel(CURRENT_FILE)
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
-    df.to_excel(temp_file.name, index=False)
-    temp_file.close()
-    
-    return send_file(temp_file.name, as_attachment=True, download_name='dashboard_data.xlsx')
+    return send_file(current_file, as_attachment=True, download_name='dashboard_data.xlsx')
 
 @app.route('/reset')
 def reset_to_default():
-    """Reset to default tasks.xlsx file"""
-    global CURRENT_FILE
-    CURRENT_FILE = EXCEL_FILE1
-    flash('Reset to default file', 'info')
+    """Reset current session data"""
+    current_file = get_user_file()
+    
+    # Reset to empty data
+    data = {
+        'Project Name': [],
+        'Task Name': [],
+        'Assigned to': [],
+        'Start Date': [],
+        'Days Required': [],
+        'End Date': [],
+        'Progress': []  
+    }
+    df = pd.DataFrame(data)
+    df.to_excel(current_file, index=False)
+    
+    flash('Data reset successfully', 'info')
     return redirect(url_for('dashboard'))
 
 @app.errorhandler(413)
